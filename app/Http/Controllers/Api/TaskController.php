@@ -20,8 +20,8 @@ class TaskController extends Controller
     public function index()
     {
 
-        //$tasks = Task::where('creator_id', '=', Auth::id())->get();
-        $tasks = Task::all();//for testing
+        $tasks = Task::where('creator_id', '=', Auth::id())->get();
+        //$tasks = Task::all();//for testing
         return response($tasks, 200);
     }
 
