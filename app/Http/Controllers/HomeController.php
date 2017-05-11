@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Task;
+use JavaScript;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -23,6 +26,11 @@ class HomeController extends Controller
      */
     public function index()
     {
+        JavaScript::put([
+            'user_id' => Auth::id(),
+            'username' => Auth::user()->username
+        ]);
+        //$tasks = Task::where('')
         return view('home');
     }
 }

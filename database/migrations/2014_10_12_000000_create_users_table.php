@@ -24,14 +24,14 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->boolean('active')->default(false);  //is user active or not. Default is inactive
-            $table->unsignedInteger('dept_id');         //department id
-            $table->unsignedInteger('role_id');         //role id
+            $table->unsignedInteger('department_id')->default(1);   //department id. default is the default Dept
+            $table->unsignedInteger('role_id')->default(1);         //role id. default is normal user
             $table->boolean('vacation')->default(false);//is user on leave or not. Default is not
             $table->string('phone', 15)->nullable();        //user's phone number
             $table->string('phone_ext', 4)->nullable();    //user's extension
             $table->string('signature', 255)->nullable();    //user's signature
             //foreign keys
-            $table->foreign('dept_id')->references('id')->on('department');
+            $table->foreign('department_id')->references('id')->on('departments');
             $table->foreign('role_id')->references('id')->on('roles');
         });
     }

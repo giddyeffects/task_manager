@@ -14,8 +14,14 @@ class CreateUserGroupMembersTable extends Migration
     public function up()
     {
         Schema::create('user_group_members', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->increments('id');
+            $table->unsignedInteger('user_group_id');
+            $table->unsignedInteger('user_id');         //user who belongs to this group
             $table->timestamps();
+            //foreign keys
+            $table->foreign('user_group_id')->references('id')->on('user_groups');
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

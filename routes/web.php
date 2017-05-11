@@ -18,3 +18,17 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::resource('tasks','TaskController');
+
+Route::get('/categories', function () {
+    return App\Category::all();
+});
+
+Route::get('/gettheusers', function () {//this is NOT advisable but can't find other way right now
+    return App\User::all();
+});
+
+Route::get('/statuses', function () {
+    return App\Status::all();
+});

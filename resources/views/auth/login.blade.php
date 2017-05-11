@@ -50,11 +50,9 @@
 
                         <div class="form-group">
                             <div class="col-md-8 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
-                                    Login
-                                </button>
+                                <v-btn class="primary dark" type="submit">Login</v-btn>
 
-                                <a class="btn btn-link" href="{{ route('password.request') }}">
+                                <a class="btn error dark btn--raised" href="{{ route('password.request') }}">
                                     Forgot Your Password?
                                 </a>
                             </div>

@@ -1,0 +1,273 @@
+
+<template>
+    <v-card class="grey lighten-4 elevation-0">
+        <v-card-text>
+            <v-container fluid>
+                <h4>Create Task</h4>
+                <form action="#" @submit.prevent="edit ? updateTask(task.id) : createTask()">
+                  <v-row row>
+                    <v-col xs4>
+                      <v-subheader>Title</v-subheader>
+                    </v-col>
+                    <v-col xs8>
+                      <v-text-field name="title" label="Enter Task Title" v-model="task.title" ref="titleinput"></v-text-field>
+                      <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('title')"></div></div></div>
+                    </v-col>
+                  </v-row>
+                  <v-row row>
+                    <v-col xs4>
+                      <v-subheader>Description</v-subheader>
+                    </v-col>
+                    <v-col xs8>
+                      <v-text-field name="description" label="Enter a description" multi-line v-model="task.description"></v-text-field>
+                      <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('description')"></div></div></div>
+                    </v-col>
+                  </v-row>
+                  <v-row row>
+                    <v-col xs4>
+                      <v-subheader>Due Date</v-subheader>
+                    </v-col>
+                    <v-col xs8>
+                      <v-menu lazy :close-on-content-click="false" transition="v-scale-transition" offset-y :nudge-left="56">
+                        <v-text-field slot="activator" label="Select the Due Date" v-model="task.due_date" prepend-icon="event" readonly></v-text-field>
+                        <v-date-picker v-model="task.due_date" no-title scrollable actions>
+                          <template scope="{ save, cancel }">
+                            <v-card-row actions>
+                              <v-btn flat primary @click.native="cancel()">Cancel</v-btn>
+                              <v-btn flat primary @click.native="save()">Save</v-btn>
+                            </v-card-row>
+                          </template>
+                        </v-date-picker>
+                        <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('due_date')"></div></div></div>
+                      </v-menu>
+                    </v-col>
+                  </v-row>
+                  <v-row row>
+                    <v-col xs4>
+                      <v-subheader>Priority</v-subheader>
+                    </v-col>
+                    <v-col xs8>
+                        <v-select label="Priority" hint="Select task priority" persistent-hint :items="priorityOptions" v-model="task.priority"/>
+                    </v-col>
+                  </v-row>
+                  <v-row row>
+                    <v-col xs4>
+                      <v-subheader>Category</v-subheader>
+                    </v-col>
+                    <v-col xs8>
+                        <v-select label="Category" hint="Select task category" persistent-hint :items="categoryOptions" v-model="task.category_id"/>
+                        <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('category')"></div></div></div>
+                    </v-col>
+                  </v-row>
+                  <v-row row>
+                    <v-col xs4>
+                      <v-subheader>Assign To</v-subheader>
+                    </v-col>
+                    <v-col xs8>
+                        <v-select label="Assign To" hint="Select user to assign task" persistent-hint :items="userOptions" v-model="task.assign_id"/>
+                    </v-col>
+                  </v-row>
+                  <v-row row>
+                    <v-col xs4>
+                      <v-subheader>End Repeat Date</v-subheader>
+                    </v-col>
+                    <v-col xs8>
+                      <v-menu lazy :close-on-content-click="false" transition="v-scale-transition" offset-y :nudge-left="56">
+                        <v-text-field slot="activator" label="Select the end repeat date" v-model="task.due_date" prepend-icon="event" readonly></v-text-field>
+                        <v-date-picker v-model="task.end_repeat_date" no-title scrollable actions>
+                          <template scope="{ save, cancel }">
+                            <v-card-row actions>
+                              <v-btn flat primary @click.native="cancel()">Cancel</v-btn>
+                              <v-btn flat primary @click.native="save()">Save</v-btn>
+                            </v-card-row>
+                          </template>
+                        </v-date-picker>
+                        <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('end_repeat_date')"></div></div></div>
+                      </v-menu>
+                    </v-col>
+                  </v-row>
+                    <span class="input-group-btn">
+                        <button v-show="!edit" type="submit" class="btn btn-primary">Create Task</button>
+                        <button v-show="edit" type="submit" class="btn btn-primary">Edit Task</button>
+                    </span>
+                </form>
+  <v-list two-line subheader>
+    <v-subheader inset>My Tasks</v-subheader>
+    <v-list-item v-for="task in list" v-bind:key="task.title">
+      <v-list-tile avatar>
+        <v-list-tile-content>
+          <v-list-tile-title>{{ task.title }}</v-list-tile-title>
+          <v-list-tile-sub-title>{{ task.description }}</v-list-tile-sub-title>
+        </v-list-tile-content>
+        <v-list-tile-action>
+<button @click="showTask(task.id)" class="btn primary btn--small">Edit</button>
+                        <button @click="deleteTask(task.id)" class="btn danger btn-small">Delete</button>
+        </v-list-tile-action>
+      </v-list-tile>
+    </v-list-item>
+  </v-list>
+            </v-container>
+        </v-card-text>
+    </v-card>
+</template>
+<script>
+
+    export default {
+        data() {
+            return {
+                edit: false,
+                list: [],
+                categoryOptions: [],
+                userOptions: [],
+                errors: {},
+                task: {
+                    id: '',
+                    title: '',
+                    description: '',
+                    due_date:'',
+                    priority: 'normal',
+                    category_id: 0,
+                    assign_id: 0,
+                    creator_id: user_id,
+                    repeat: 'never',
+                    end_repeat_date: '',
+                    reminder: '',
+                    isprivate: 0,
+                },
+                priorityOptions: [
+                     'low','normal','high','emergency'
+                ],
+                repeatOptions: [
+                     'never','daily','weekly','fortnightly', 'monthly', 'yearly'
+                ]
+            }
+        },
+        
+        mounted() {
+            this.fetchTaskList();
+            this.getCategories();
+        },
+        
+        methods: {
+            fetchTaskList: function() {
+                axios.get('api/tasks').then((response) => {
+                    //console.log(response.data);
+                    this.list = response.data;
+                    
+                })
+                .catch(function (err) {
+                    this.errors = err.response.data;
+                    console.log(err);
+                });
+            },
+            getCategories: function(){
+                axios.get('/categories').then((response) => {
+                    //console.log("categories "+response.data);
+                    //this.categoryOptions = response.data;
+                    for (var i = 0; i < response.data.length; i++){
+                        this.categoryOptions.push(response.data[i].name); 
+                    }
+                    
+                })
+                .catch(function (err) {
+                    this.errors = err.response.data;
+                    console.log(err);
+                });
+            },
+            getUsers: function(){
+                axios.get('gettheusers').then((response) => {
+                    console.log("users "+response.data);
+                    for (var i = 0; i < response.data.length; i++){
+                        this.userOptions.push(response.data[i].username); 
+                    }
+                    
+                })
+                .catch(function (err) {
+                    this.errors = err.response.data;
+                    console.log(err);
+                });
+            },
+            getErrors(field){
+                if(this.errors[field]){
+                    return this.errors[field][0];
+                }
+            },
+            createTask: function () {
+                var self = this;
+                let params = Object.assign({}, self.task);
+                console.log("task to create "+self.task);
+                axios.post('api/task/store', params)
+                .then(function (res) {
+                    console.log(res);
+                })
+                .catch( function (err) {
+                    self.errors = err.response.data;
+                    console.log(err);
+                });
+                self.task.title = ''
+                self.edit = false
+                self.fetchTaskList()
+            },
+
+            updateTask: function(id) {
+                var self = this;
+                let params = Object.assign({}, self.task);
+                axios.patch('api/task/' + id, params)
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function(err) {
+                    self.errors = err.response.data;
+                    console.log(err);
+                });
+                
+                self.task.title = ''
+                self.edit = false
+                self.fetchTaskList()
+            },
+
+            showTask: function(id) {
+                var self = this;
+                axios.get('api/task/' + id)
+                .then(function(response) {
+                    self.task.id = response.data.id
+                    self.task.title = response.data.title
+                    self.task.description = response.data.description
+                })
+                self.$refs.titleinput.focus()
+                self.edit = true
+            },
+
+            deleteTask: function (id) {
+                swal({
+                  title: "Are you sure?",
+                  text: "You will not be able to access this task!",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "Yes, delete it!",
+                  cancelButtonText: "No, cancel!",
+                  closeOnConfirm: false,
+                  closeOnCancel: false
+                },
+                function(isConfirm){
+                  if (isConfirm) {
+                        axios.delete('api/task/' + id)
+                        .then(function(res) {
+                            this.fetchTaskList();
+                            //console.log(res);
+                        })
+                        .catch(function (err) {
+                            this.errors = err.response.data;
+                            console.log(err);
+                        });
+                        this.fetchTaskList();
+                  } else {
+                    swal("Cancelled", "Your task has not been deleted", "error");
+                  }
+                });
+
+            },
+        }
+    }
+</script>
