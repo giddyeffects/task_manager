@@ -26,6 +26,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+        //send some php variables to javascript
         JavaScript::put([
             'user_id' => Auth::id(),
             'username' => Auth::user()->username

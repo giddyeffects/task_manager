@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,9 +27,13 @@ Route::get('/categories', function () {
 });
 
 Route::get('/gettheusers', function () {//this is NOT advisable but can't find other way right now
-    return App\User::all();
+    return App\User::select('id','firstname','lastname')->where([ ['id','<>',Auth::id()], ['vacation','=',0] ])->get();
 });
 
 Route::get('/statuses', function () {
     return App\Status::all();
+});
+
+Route::get('/depts', function () {
+    return App\Department::all();
 });

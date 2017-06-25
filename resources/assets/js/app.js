@@ -11,9 +11,27 @@ window.Vue = require('vue');
 
 //load vuetify
 window.Vuetify  = require('vuetify');
+//import VueRouter
+import VueRouter from 'vue-router';
 
-//Use vuetify
+//Use vuetify, VueRouter
 Vue.use(Vuetify);
+//Use vue-router
+Vue.use(VueRouter);
+
+//import router using ES6 syntax
+import router from './routes';
+// let routes = [
+// 	{ path: '/', component: require('./components/Home')},
+// 	{ path: '/tasks', component: require('./components/Task')}
+// ];
+
+// const router = new VueRouter({
+// 	//base: __dirname,
+// 	//base: window.location.href,
+// 	//base: '/home/',
+// 	routes //or just routes if using ES6
+// });
 
 //custom error class
 class Errors {
@@ -37,10 +55,13 @@ window.swal = require('sweetalert');
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
-
-Vue.component('task', require('./components/Task.vue'));
+//Vue.component('app-nav', require('./components/Header.vue'));
+//Vue.component('app-sidebar', require('./components/Sidebar.vue'));
+Vue.component('app-topbar', require('./components/Topbar.vue'));
+Vue.component('task', require('./components/Tasks.vue'));
 Vue.component('dash', require('./components/Dash.vue'));
 
 const app = new Vue({
-    el: '#app'
+    el: '#app',
+    router //or just router if using ES6
 });

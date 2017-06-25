@@ -1,16 +1,21 @@
-
 <template>
-    <v-card class="grey lighten-4 elevation-0">
+<div>
+    <app-topbar></app-topbar>
+     <v-card class="grey lighten-4 elevation-0">
+        <v-card-row class="green darken-2">
+          <v-card-title>
+            <span class="white--text">Create Task</span>
+            <v-spacer></v-spacer>
+          </v-card-title>
+        </v-card-row>
         <v-card-text>
-            <v-container fluid>
-                <h4>Create Task</h4>
                 <form action="#" @submit.prevent="edit ? updateTask(task.id) : createTask()">
                   <v-row row>
                     <v-col xs4>
                       <v-subheader>Title</v-subheader>
                     </v-col>
                     <v-col xs8>
-                      <v-text-field name="title" label="Enter Task Title" v-model="task.title" ref="titleinput"></v-text-field>
+                      <v-text-field name="title" label="Enter Task Title" v-model="task.title" ref="titleinput" required></v-text-field>
                       <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('title')"></div></div></div>
                     </v-col>
                   </v-row>
@@ -19,7 +24,7 @@
                       <v-subheader>Description</v-subheader>
                     </v-col>
                     <v-col xs8>
-                      <v-text-field name="description" label="Enter a description" multi-line v-model="task.description"></v-text-field>
+                      <v-text-field name="description" label="Enter a description" multi-line v-model="task.description" required></v-text-field>
                       <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('description')"></div></div></div>
                     </v-col>
                   </v-row>
@@ -29,7 +34,7 @@
                     </v-col>
                     <v-col xs8>
                       <v-menu lazy :close-on-content-click="false" transition="v-scale-transition" offset-y :nudge-left="56">
-                        <v-text-field slot="activator" label="Select the Due Date" v-model="task.due_date" prepend-icon="event" readonly></v-text-field>
+                        <v-text-field slot="activator" label="Select the Due Date" v-model="task.due_date" prepend-icon="event" readonly required></v-text-field>
                         <v-date-picker v-model="task.due_date" no-title scrollable actions>
                           <template scope="{ save, cancel }">
                             <v-card-row actions>
@@ -47,7 +52,7 @@
                       <v-subheader>Priority</v-subheader>
                     </v-col>
                     <v-col xs8>
-                        <v-select label="Priority" hint="Select task priority" persistent-hint :items="priorityOptions" v-model="task.priority"/>
+                        <v-select label="Priority" hint="Select task priority" persistent-hint :items="priorityOptions" v-model="task.priority"></v-select>
                     </v-col>
                   </v-row>
                   <v-row row>
@@ -55,7 +60,7 @@
                       <v-subheader>Category</v-subheader>
                     </v-col>
                     <v-col xs8>
-                        <v-select label="Category" hint="Select task category" persistent-hint :items="categoryOptions" v-model="task.category_id"/>
+                        <v-select label="Category" hint="Select task category" persistent-hint :items="categoryOptions" v-model="task.category_id" v-bind:rules="[() => task.category_id && task.category_id.length > 0 || 'Please select a category']" item-value="id" item-text="text" required></v-select>
                         <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('category')"></div></div></div>
                     </v-col>
                   </v-row>
@@ -64,7 +69,43 @@
                       <v-subheader>Assign To</v-subheader>
                     </v-col>
                     <v-col xs8>
-                        <v-select label="Assign To" hint="Select user to assign task" persistent-hint :items="userOptions" v-model="task.assign_id"/>
+                        <v-select label="Assign To" hint="Select user to assign task" persistent-hint :items="userOptions" v-model="task.assigned_id" item-value="id" item-text="text" required></v-select>
+                        <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('assigned_id')"></div></div></div>
+                    </v-col>
+                  </v-row>
+                  <v-row row>
+                      <v-col xs4>
+                          <v-subheader>Remind me on a date</v-subheader>
+                      </v-col>
+                      <v-col xs8>
+                          <v-switch v-model="task.set_reminder" primary></v-switch>
+                      </v-col>
+                  </v-row>
+                  <v-row row>
+                    <v-col xs4>
+                      <v-subheader>Reminder Date</v-subheader>
+                    </v-col>
+                    <v-col xs8>
+                      <v-menu lazy :close-on-content-click="false" transition="v-scale-transition" offset-y :nudge-left="56">
+                        <v-text-field slot="activator" label="Select the reminder date" v-model="task.reminder" prepend-icon="event" readonly></v-text-field>
+                        <v-date-picker v-model="task.reminder" no-title scrollable actions>
+                          <template scope="{ save, cancel }">
+                            <v-card-row actions>
+                              <v-btn flat primary @click.native="cancel()">Cancel</v-btn>
+                              <v-btn flat primary @click.native="save()">Save</v-btn>
+                            </v-card-row>
+                          </template>
+                        </v-date-picker>
+                        <div class="input-group__details"><div class="input-group__messages"><div class="input-group__error" v-text="getErrors('reminder')"></div></div></div>
+                      </v-menu>
+                    </v-col>
+                  </v-row>
+                  <v-row row>
+                    <v-col xs4>
+                      <v-subheader>Task Repeat</v-subheader>
+                    </v-col>
+                    <v-col xs8>
+                        <v-select label="Repeat" hint="Does the task repeat?" persistent-hint :items="repeatOptions" v-model="task.repeat"></v-select>
                     </v-col>
                   </v-row>
                   <v-row row>
@@ -73,7 +114,7 @@
                     </v-col>
                     <v-col xs8>
                       <v-menu lazy :close-on-content-click="false" transition="v-scale-transition" offset-y :nudge-left="56">
-                        <v-text-field slot="activator" label="Select the end repeat date" v-model="task.due_date" prepend-icon="event" readonly></v-text-field>
+                        <v-text-field slot="activator" label="Select the end repeat date" v-model="task.end_repeat_date" prepend-icon="event" readonly></v-text-field>
                         <v-date-picker v-model="task.end_repeat_date" no-title scrollable actions>
                           <template scope="{ save, cancel }">
                             <v-card-row actions>
@@ -87,8 +128,8 @@
                     </v-col>
                   </v-row>
                     <span class="input-group-btn">
-                        <button v-show="!edit" type="submit" class="btn btn-primary">Create Task</button>
-                        <button v-show="edit" type="submit" class="btn btn-primary">Edit Task</button>
+                        <v-btn v-show="!edit" type="submit" outline class="teal--text">Create Task</v-btn>
+                        <v-btn v-show="edit" type="submit" outline class="teal--text">Edit Task</v-btn>
                     </span>
                 </form>
   <v-list two-line subheader>
@@ -106,12 +147,12 @@
       </v-list-tile>
     </v-list-item>
   </v-list>
-            </v-container>
         </v-card-text>
     </v-card>
+</div>
 </template>
-<script>
 
+<script>
     export default {
         data() {
             return {
@@ -127,10 +168,11 @@
                     due_date:'',
                     priority: 'normal',
                     category_id: 0,
-                    assign_id: 0,
+                    assigned_id: 0,
                     creator_id: user_id,
                     repeat: 'never',
                     end_repeat_date: '',
+                    set_reminder: false,
                     reminder: '',
                     isprivate: 0,
                 },
@@ -139,13 +181,14 @@
                 ],
                 repeatOptions: [
                      'never','daily','weekly','fortnightly', 'monthly', 'yearly'
-                ]
+                ],
             }
         },
         
         mounted() {
             this.fetchTaskList();
             this.getCategories();
+            this.getUsers();
         },
         
         methods: {
@@ -165,7 +208,7 @@
                     //console.log("categories "+response.data);
                     //this.categoryOptions = response.data;
                     for (var i = 0; i < response.data.length; i++){
-                        this.categoryOptions.push(response.data[i].name); 
+                        this.categoryOptions.push({ text: response.data[i].name, id: response.data[i].id }); 
                     }
                     
                 })
@@ -175,10 +218,10 @@
                 });
             },
             getUsers: function(){
-                axios.get('gettheusers').then((response) => {
-                    console.log("users "+response.data);
+                axios.get('/gettheusers').then((response) => {
+                    //console.log("users "+response.data);
                     for (var i = 0; i < response.data.length; i++){
-                        this.userOptions.push(response.data[i].username); 
+                        this.userOptions.push({text: response.data[i].firstname+' '+response.data[i].lastname, id: response.data[i].id }); 
                     }
                     
                 })
@@ -195,7 +238,7 @@
             createTask: function () {
                 var self = this;
                 let params = Object.assign({}, self.task);
-                console.log("task to create "+self.task);
+                //console.log("task to create "+self.task);
                 axios.post('api/task/store', params)
                 .then(function (res) {
                     console.log(res);
