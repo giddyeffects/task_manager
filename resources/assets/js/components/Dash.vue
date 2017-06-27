@@ -21,7 +21,7 @@
       <v-list class="pt-0" dense>
         <v-divider></v-divider>
         <v-list-item v-for="item in sidebarmenus" :key="item.title">
-          <router-link :to="item.link" class="list__tile" :exact="item.exact">
+          <router-link :to="item.link" class="list__tile" :exact="item.exact" @click.native="sideClick(item.heading)">
             <v-list-tile>
               <v-list-tile-action>
                 <v-icon>{{ item.icon }}</v-icon>
@@ -36,7 +36,7 @@
     </v-navigation-drawer>
     <v-toolbar fixed class="indigo darken-4" light>
       <v-toolbar-side-icon light @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title>Task Manager</v-toolbar-title>
+      <v-toolbar-title>{{ toolbarHeading }}</v-toolbar-title>
       <v-toolbar-items>
         <v-menu left bottom origin="bottom right" transition="v-scale-transition">
           <v-btn light icon slot="activator">
@@ -45,7 +45,7 @@
           <v-list>
             <v-list-item>
               <v-list-tile>
-                <v-list-tile-title>My Account</v-list-tile-title>
+                <router-link to="/users" @click.native="sideClick('My Profile')"><v-list-tile-title>My Account</v-list-tile-title></router-link>
               </v-list-tile>
               <v-list-tile>
                 <v-list-tile-title>Log Out</v-list-tile-title>
@@ -61,6 +61,10 @@
         <!--v-router-->
       </v-container>
     </main>
+    <v-footer class="pa-3">
+      <v-spacer></v-spacer>
+      <div>GiddyEffects © {{ new Date().getFullYear() }}</div>
+    </v-footer>
   </v-app>
 </template>
 <script>
@@ -69,14 +73,21 @@
         data() {
             return {
               drawer: true,
+              toolbarHeading: 'Dashboard',
               sidebarmenus: [
-                { title: 'Home', icon: 'dashboard', link: '/', exact: true },
-                { title: 'Tasks', icon: 'question_answer', link: '/tasks', exact: false }
+                { title: 'Home', icon: 'dashboard', link: '/', exact: true, heading: 'Dashboard' },
+                { title: 'Tasks', icon: 'list', link: '/tasks', exact: false, heading: 'Task Manager' },
+                { title: 'My Account', icon: 'account_circle', link: '/users', exact: false, heading: 'My Profile' }
               ],
               mini: false,
               right: null,
               username: username
             }
+        },
+        methods: {
+          sideClick: function (heading) {
+            this.toolbarHeading = heading
+          }
         }
     }
 </script>

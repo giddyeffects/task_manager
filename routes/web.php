@@ -26,7 +26,7 @@ Route::get('/categories', function () {
     return App\Category::all();
 });
 
-Route::get('/gettheusers', function () {//this is NOT advisable but can't find other way right now
+Route::get('/gettheusers', function () {
     return App\User::select('id','firstname','lastname')->where([ ['id','<>',Auth::id()], ['vacation','=',0] ])->get();
 });
 

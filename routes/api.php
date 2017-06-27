@@ -24,3 +24,12 @@ Route::group(['middleware' => 'api'], function() {
     Route::patch('task/{id}', 'Api\TaskController@update');
     Route::delete('task/{id}', 'Api\TaskController@destroy');
 });
+
+//create api routes for the User controller
+Route::group(['middleware' => 'api'], function() {
+    Route::get('users', 'Api\UserController@index');
+    Route::get('user/{id}', 'Api\UserController@show');
+    Route::post('user/store', 'Api\UserController@store');
+    Route::patch('user/{id}', 'Api\UserController@update');
+    Route::delete('user/{id}', 'Api\UserController@destroy');
+});

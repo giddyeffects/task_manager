@@ -6,7 +6,7 @@ webpackJsonp([0],[
 
 
 var bind = __webpack_require__(11);
-var isBuffer = __webpack_require__(44);
+var isBuffer = __webpack_require__(45);
 
 /*global toString:true*/
 
@@ -310,6 +310,103 @@ module.exports = {
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports) {
+
+/* globals __VUE_SSR_CONTEXT__ */
+
+// this module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle
+
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier /* server only */
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = injectStyles
+  }
+
+  if (hook) {
+    var functional = options.functional
+    var existing = functional
+      ? options.render
+      : options.beforeCreate
+    if (!functional) {
+      // inject component registration as beforeCreate hook
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    } else {
+      // register for functioal component in vue file
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return existing(h, context)
+      }
+    }
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -506,103 +603,6 @@ exports.fireClick = fireClick;
 exports.stopEventPropagation = stopEventPropagation;
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-/* globals __VUE_SSR_CONTEXT__ */
-
-// this module is a runtime utility for cleaner component module output and will
-// be included in the final webpack user bundle
-
-module.exports = function normalizeComponent (
-  rawScriptExports,
-  compiledTemplate,
-  injectStyles,
-  scopeId,
-  moduleIdentifier /* server only */
-) {
-  var esModule
-  var scriptExports = rawScriptExports = rawScriptExports || {}
-
-  // ES6 modules interop
-  var type = typeof rawScriptExports.default
-  if (type === 'object' || type === 'function') {
-    esModule = rawScriptExports
-    scriptExports = rawScriptExports.default
-  }
-
-  // Vue.extend constructor export interop
-  var options = typeof scriptExports === 'function'
-    ? scriptExports.options
-    : scriptExports
-
-  // render functions
-  if (compiledTemplate) {
-    options.render = compiledTemplate.render
-    options.staticRenderFns = compiledTemplate.staticRenderFns
-  }
-
-  // scopedId
-  if (scopeId) {
-    options._scopeId = scopeId
-  }
-
-  var hook
-  if (moduleIdentifier) { // server build
-    hook = function (context) {
-      // 2.3 injection
-      context =
-        context || // cached call
-        (this.$vnode && this.$vnode.ssrContext) || // stateful
-        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
-      // 2.2 with runInNewContext: true
-      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-        context = __VUE_SSR_CONTEXT__
-      }
-      // inject component styles
-      if (injectStyles) {
-        injectStyles.call(this, context)
-      }
-      // register component module identifier for async chunk inferrence
-      if (context && context._registeredComponents) {
-        context._registeredComponents.add(moduleIdentifier)
-      }
-    }
-    // used by ssr in case component is cached and beforeCreate
-    // never gets called
-    options._ssrRegister = hook
-  } else if (injectStyles) {
-    hook = injectStyles
-  }
-
-  if (hook) {
-    var functional = options.functional
-    var existing = functional
-      ? options.render
-      : options.beforeCreate
-    if (!functional) {
-      // inject component registration as beforeCreate hook
-      options.beforeCreate = existing
-        ? [].concat(existing, hook)
-        : [hook]
-    } else {
-      // register for functioal component in vue file
-      options.render = function renderWithStyleInjection (h, context) {
-        hook.call(context)
-        return existing(h, context)
-      }
-    }
-  }
-
-  return {
-    esModule: esModule,
-    exports: scriptExports,
-    options: options
-  }
-}
-
-
-/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -617,7 +617,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _hexToRgb = __webpack_require__(4);
 
-var _removeClass$getTopMargin$fadeIn$show$addClass = __webpack_require__(1);
+var _removeClass$getTopMargin$fadeIn$show$addClass = __webpack_require__(2);
 
 var _defaultParams = __webpack_require__(12);
 
@@ -627,7 +627,7 @@ var _defaultParams2 = _interopRequireWildcard(_defaultParams);
  * Add modal + overlay to DOM
  */
 
-var _injectedHTML = __webpack_require__(50);
+var _injectedHTML = __webpack_require__(51);
 
 var _injectedHTML2 = _interopRequireWildcard(_injectedHTML);
 
@@ -952,7 +952,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(48)))
 
 /***/ }),
 /* 6 */,
@@ -1266,11 +1266,11 @@ module.exports = exports['default'];
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var Component = __webpack_require__(2)(
+var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(41),
+  __webpack_require__(42),
   /* template */
-  __webpack_require__(59),
+  __webpack_require__(61),
   /* styles */
   null,
   /* scopeId */
@@ -3832,7 +3832,7 @@ __webpack_require__(36);
 window.Vue = __webpack_require__(6);
 
 //load vuetify
-window.Vuetify = __webpack_require__(62);
+window.Vuetify = __webpack_require__(65);
 //import VueRouter
 
 
@@ -3881,7 +3881,7 @@ var Errors = function () {
 	return Errors;
 }();
 
-window.swal = __webpack_require__(52);
+window.swal = __webpack_require__(53);
 //console.log('username in app.js is '+window.username);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -3890,9 +3890,9 @@ window.swal = __webpack_require__(52);
  */
 //Vue.component('app-nav', require('./components/Header.vue'));
 //Vue.component('app-sidebar', require('./components/Sidebar.vue'));
-Vue.component('app-topbar', __webpack_require__(56));
+Vue.component('app-topbar', __webpack_require__(58));
 Vue.component('task', __webpack_require__(13));
-Vue.component('dash', __webpack_require__(54));
+Vue.component('dash', __webpack_require__(56));
 
 var app = new Vue({
 	el: '#app',
@@ -4757,7 +4757,7 @@ module.exports = function spread(callback) {
 /***/ (function(module, exports, __webpack_require__) {
 
 
-window._ = __webpack_require__(46);
+window._ = __webpack_require__(47);
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -4766,9 +4766,9 @@ window._ = __webpack_require__(46);
  */
 
 try {
-  window.$ = window.jQuery = __webpack_require__(45);
+  window.$ = window.jQuery = __webpack_require__(46);
 
-  __webpack_require__(43);
+  __webpack_require__(44);
 } catch (e) {}
 
 /**
@@ -4805,7 +4805,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_router__ = __webpack_require__(14);
 
 
-var routes = [{ path: '/', component: __webpack_require__(55) }, { path: '/tasks', component: __webpack_require__(13) }, { path: '/tasks/create', component: __webpack_require__(53) }];
+var routes = [{ path: '/', component: __webpack_require__(57) }, { path: '/tasks', component: __webpack_require__(13) }, { path: '/tasks/create', component: __webpack_require__(55) }, { path: '/users', component: __webpack_require__(54) }];
 
 /* harmony default export */ __webpack_exports__["a"] = (new __WEBPACK_IMPORTED_MODULE_0_vue_router__["a" /* default */]({
 	linkActiveClass: 'list__tile--active',
@@ -4899,226 +4899,52 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            edit: false,
-            list: [],
-            categoryOptions: [],
-            userOptions: [],
-            errors: {},
-            task: {
-                id: '',
-                title: '',
-                description: '',
-                due_date: '',
-                priority: 'normal',
-                category_id: 0,
-                assigned_id: 0,
-                creator_id: user_id,
-                repeat: 'never',
-                end_repeat_date: '',
-                set_reminder: false,
-                reminder: '',
-                isprivate: 0
+            user: {
+                firstname: '',
+                lastname: '',
+                email: '',
+                active: 0,
+                dept_id: 0,
+                role_id: 0,
+                vacation: 0,
+                phone: '',
+                signature: ''
             },
-            priorityOptions: ['low', 'normal', 'high', 'emergency'],
-            repeatOptions: ['never', 'daily', 'weekly', 'fortnightly', 'monthly', 'yearly']
+            user_id: user_id,
+            username: username,
+            edit: false
         };
     },
-    mounted: function mounted() {
-        this.fetchTaskList();
-        this.getCategories();
-        this.getUsers();
-    },
-
 
     methods: {
-        fetchTaskList: function fetchTaskList() {
+        getUser: function getUser() {
             var _this = this;
 
-            axios.get('api/tasks').then(function (response) {
-                //console.log(response.data);
-                _this.list = response.data;
-            }).catch(function (err) {
-                this.errors = err.response.data;
-                console.log(err);
+            axios.get('api/user/' + this.user_id).then(function (response) {
+                _this.user.firstname = response.data.firstname;
+                _this.user.lastname = response.data.lastname;
+                _this.user.email = response.data.email;
+                _this.user.active = response.data.active;
+                _this.user.dept_id = response.data.dept_id;
+                _this.user.role_id = response.data.role_id;
+                _this.user.vacation = response.data.vacation;
+                _this.user.phone = response.data.phone;
+                _this.user.signature = response.data.signature;
+                console.log('response.data is ' + response.data);
+            }).catch(function (e) {
+                console.log(e);
             });
         },
-        getCategories: function getCategories() {
-            var _this2 = this;
-
-            axios.get('/categories').then(function (response) {
-                //console.log("categories "+response.data);
-                //this.categoryOptions = response.data;
-                for (var i = 0; i < response.data.length; i++) {
-                    _this2.categoryOptions.push({ text: response.data[i].name, id: response.data[i].id });
-                }
-            }).catch(function (err) {
-                this.errors = err.response.data;
-                console.log(err);
-            });
-        },
-        getUsers: function getUsers() {
-            var _this3 = this;
-
-            axios.get('/gettheusers').then(function (response) {
-                //console.log("users "+response.data);
-                for (var i = 0; i < response.data.length; i++) {
-                    _this3.userOptions.push({ text: response.data[i].firstname + ' ' + response.data[i].lastname, id: response.data[i].id });
-                }
-            }).catch(function (err) {
-                this.errors = err.response.data;
-                console.log(err);
-            });
-        },
-        getErrors: function getErrors(field) {
-            if (this.errors[field]) {
-                return this.errors[field][0];
-            }
-        },
-
-        createTask: function createTask() {
-            var self = this;
-            var params = Object.assign({}, self.task);
-            //console.log("task to create "+self.task);
-            axios.post('api/task/store', params).then(function (res) {
-                console.log(res);
-            }).catch(function (err) {
-                self.errors = err.response.data;
-                console.log(err);
-            });
-            self.task.title = '';
-            self.edit = false;
-            self.fetchTaskList();
-        },
-
-        updateTask: function updateTask(id) {
-            var self = this;
-            var params = Object.assign({}, self.task);
-            axios.patch('api/task/' + id, params).then(function (response) {
-                console.log(response);
-            }).catch(function (err) {
-                self.errors = err.response.data;
-                console.log(err);
-            });
-
-            self.task.title = '';
-            self.edit = false;
-            self.fetchTaskList();
-        },
-
-        showTask: function showTask(id) {
-            var self = this;
-            axios.get('api/task/' + id).then(function (response) {
-                self.task.id = response.data.id;
-                self.task.title = response.data.title;
-                self.task.description = response.data.description;
-            });
-            self.$refs.titleinput.focus();
-            self.edit = true;
-        },
-
-        deleteTask: function deleteTask(id) {
-            swal({
-                title: "Are you sure?",
-                text: "You will not be able to access this task!",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes, delete it!",
-                cancelButtonText: "No, cancel!",
-                closeOnConfirm: false,
-                closeOnCancel: false
-            }, function (isConfirm) {
-                if (isConfirm) {
-                    axios.delete('api/task/' + id).then(function (res) {
-                        this.fetchTaskList();
-                        //console.log(res);
-                    }).catch(function (err) {
-                        this.errors = err.response.data;
-                        console.log(err);
-                    });
-                    this.fetchTaskList();
-                } else {
-                    swal("Cancelled", "Your task has not been deleted", "error");
-                }
-            });
+        toggleEdit: function toggleEdit() {
+            this.edit = !this.edit;
         }
+    },
+    mounted: function mounted() {
+        this.getUser();
     }
 });
 
@@ -5193,22 +5019,343 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            edit: false,
+            list: [],
+            categoryOptions: [],
+            userOptions: [],
+            errors: {},
+            task: {
+                id: '',
+                title: '',
+                description: '',
+                due_date: '',
+                priority: 'normal',
+                category_id: 0,
+                assigned_id: 0,
+                creator_id: user_id,
+                repeat: 'never',
+                end_repeat_date: '',
+                set_reminder: false,
+                reminder: '',
+                isprivate: 0
+            },
+            priorityOptions: ['low', 'normal', 'high', 'emergency'],
+            repeatOptions: ['never', 'daily', 'weekly', 'fortnightly', 'monthly', 'yearly']
+        };
+    },
+    mounted: function mounted() {
+        this.fetchTaskList();
+        this.getCategories();
+        this.getUsers();
+    },
+
+
+    methods: {
+        fetchTaskList: function fetchTaskList() {
+            var _this = this;
+
+            axios.get('api/tasks').then(function (response) {
+                //console.log(response.data);
+                _this.list = response.data;
+            }).catch(function (err) {
+                this.errors = err.response.data;
+                console.log(err);
+            });
+        },
+        getCategories: function getCategories() {
+            var _this2 = this;
+
+            axios.get('/categories').then(function (response) {
+                //console.log("categories "+response.data);
+                //this.categoryOptions = response.data;
+                for (var i = 0; i < response.data.length; i++) {
+                    _this2.categoryOptions.push({ text: response.data[i].name, id: response.data[i].id });
+                }
+            }).catch(function (err) {
+                this.errors = err.response.data;
+                console.log(err);
+            });
+        },
+        getUsers: function getUsers() {
+            var _this3 = this;
+
+            axios.get('/gettheusers').then(function (response) {
+                //console.log("users "+response.data);
+                for (var i = 0; i < response.data.length; i++) {
+                    _this3.userOptions.push({ text: response.data[i].firstname + ' ' + response.data[i].lastname, id: response.data[i].id });
+                }
+            }).catch(function (err) {
+                this.errors = err.response.data;
+                console.log(err);
+            });
+        },
+        getErrors: function getErrors(field) {
+            if (this.errors[field]) {
+                return this.errors[field][0];
+            }
+        },
+
+        createTask: function createTask() {
+            var self = this;
+            var params = Object.assign({}, self.task);
+            //console.log("task to create "+self.task);
+            axios.post('api/task/store', params).then(function (res) {
+                console.log(res);
+            }).catch(function (err) {
+                self.errors = err.response.data;
+                console.log(err);
+            });
+            self.task.title = '';
+            self.edit = false;
+            self.fetchTaskList();
+        },
+
+        updateTask: function updateTask(id) {
+            var self = this;
+            var params = Object.assign({}, self.task);
+            axios.patch('api/task/' + id, params).then(function (response) {
+                console.log(response);
+            }).catch(function (err) {
+                self.errors = err.response.data;
+                console.log(err);
+            });
+
+            self.task.title = '';
+            self.edit = false;
+            self.fetchTaskList();
+        },
+
+        showTask: function showTask(id) {
+            var self = this;
+            axios.get('api/task/' + id).then(function (response) {
+                self.task.id = response.data.id;
+                self.task.title = response.data.title;
+                self.task.description = response.data.description;
+            });
+            self.$refs.titleinput.focus();
+            self.edit = true;
+        },
+
+        deleteTask: function deleteTask(id) {
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to access this task!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel!",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    axios.delete('api/task/' + id).then(function (res) {
+                        this.fetchTaskList();
+                        //console.log(res);
+                    }).catch(function (err) {
+                        this.errors = err.response.data;
+                        console.log(err);
+                    });
+                    this.fetchTaskList();
+                } else {
+                    swal("Cancelled", "Your task has not been deleted", "error");
+                }
+            });
+        }
+    }
+});
+
+/***/ }),
+/* 40 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       drawer: true,
-      sidebarmenus: [{ title: 'Home', icon: 'dashboard', link: '/', exact: true }, { title: 'Tasks', icon: 'question_answer', link: '/tasks', exact: false }],
+      toolbarHeading: 'Dashboard',
+      sidebarmenus: [{ title: 'Home', icon: 'dashboard', link: '/', exact: true, heading: 'Dashboard' }, { title: 'Tasks', icon: 'list', link: '/tasks', exact: false, heading: 'Task Manager' }, { title: 'My Account', icon: 'account_circle', link: '/users', exact: false, heading: 'My Profile' }],
       mini: false,
       right: null,
       username: username
     };
+  },
+
+  methods: {
+    sideClick: function sideClick(heading) {
+      this.toolbarHeading = heading;
+    }
   }
 });
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5235,7 +5382,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5417,7 +5564,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5434,37 +5581,82 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    data: function data() {
-        return {
-            dropdown_dept: [],
-            dropdown_task_options: [{ text: 'All my Tasks' }, { text: 'My Overdue Tasks' }, { text: 'My Open Tasks' }],
-            dropdown_access: [{ text: 'All' }, { text: 'Public' }, { text: 'Private' }]
-        };
-    },
-    mounted: function mounted() {
-        this.fetchDeptList();
-    },
+  data: function data() {
+    return {
+      dept: '',
+      taskType: '',
+      accessLevel: '',
+      dropdown_dept: [],
+      dropdown_task_options: [{ text: 'All my Tasks' }, { text: 'My Overdue Tasks' }, { text: 'My Open Tasks' }],
+      dropdown_access: [{ text: 'All' }, { text: 'Public' }, { text: 'Private' }]
+    };
+  },
+  mounted: function mounted() {
+    this.fetchDeptList();
+  },
 
-    methods: {
-        fetchDeptList: function fetchDeptList() {
-            var _this = this;
+  methods: {
+    fetchDeptList: function fetchDeptList() {
+      var _this = this;
 
-            axios.get('/depts').then(function (response) {
-                for (var i = 0; i < response.data.length; i++) {
-                    _this.dropdown_dept.push({ text: response.data[i].name, id: response.data[i].id });
-                }
-            }).catch(function (err) {
-                this.errors = err.response.data;
-                console.log(err);
-            });
+      axios.get('/depts').then(function (response) {
+        for (var i = 0; i < response.data.length; i++) {
+          _this.dropdown_dept.push({ text: response.data[i].name, id: response.data[i].id });
         }
+      }).catch(function (err) {
+        this.errors = err.response.data;
+        console.log(err);
+      });
+    },
+    topMenu: function topMenu(slot, text) {
+      if (slot === 'dept') this.dept = text;else if (slot === 'task') this.taskType = text;else if (slot === 'access') this.accessLevel = text;
     }
+  }
 });
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports) {
 
 /*!
@@ -7847,7 +8039,7 @@ if (typeof jQuery === 'undefined') {
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports) {
 
 /*!
@@ -7874,7 +8066,7 @@ function isSlowBuffer (obj) {
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -18134,7 +18326,7 @@ return jQuery;
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -35223,10 +35415,10 @@ return jQuery;
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15), __webpack_require__(63)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15), __webpack_require__(66)(module)))
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -35416,7 +35608,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35430,7 +35622,7 @@ var _colorLuminance = __webpack_require__(4);
 
 var _getModal = __webpack_require__(3);
 
-var _hasClass$isDescendant = __webpack_require__(1);
+var _hasClass$isDescendant = __webpack_require__(2);
 
 /*
  * User clicked on "Confirm"/"OK" or "Cancel"
@@ -35557,7 +35749,7 @@ exports['default'] = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35567,7 +35759,7 @@ Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _stopEventPropagation$fireClick = __webpack_require__(1);
+var _stopEventPropagation$fireClick = __webpack_require__(2);
 
 var _setFocusStyle = __webpack_require__(3);
 
@@ -35642,7 +35834,7 @@ exports['default'] = handleKeyDown;
 module.exports = exports['default'];
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35690,7 +35882,7 @@ exports["default"] = injectedHTML;
 module.exports = exports["default"];
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35704,7 +35896,7 @@ var _isIE8 = __webpack_require__(4);
 
 var _getModal$getInput$setFocusStyle = __webpack_require__(3);
 
-var _hasClass$addClass$removeClass$escapeHtml$_show$show$_hide$hide = __webpack_require__(1);
+var _hasClass$addClass$removeClass$escapeHtml$_show$show$_hide$hide = __webpack_require__(2);
 
 var alertTypes = ['error', 'warning', 'info', 'success', 'input', 'prompt'];
 
@@ -35921,7 +36113,7 @@ exports['default'] = setParameters;
 module.exports = exports['default'];
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35940,7 +36132,7 @@ Object.defineProperty(exports, '__esModule', {
  * jQuery-like functions for manipulating the DOM
  */
 
-var _hasClass$addClass$removeClass$escapeHtml$_show$show$_hide$hide$isDescendant$getTopMargin$fadeIn$fadeOut$fireClick$stopEventPropagation = __webpack_require__(1);
+var _hasClass$addClass$removeClass$escapeHtml$_show$show$_hide$hide$isDescendant$getTopMargin$fadeIn$fadeOut$fireClick$stopEventPropagation = __webpack_require__(2);
 
 /*
  * Handy utilities
@@ -35956,9 +36148,9 @@ var _sweetAlertInitialize$getModal$getOverlay$getInput$setFocusStyle$openModal$r
 
 // Handle button events and keyboard events
 
-var _handleButton$handleConfirm$handleCancel = __webpack_require__(48);
+var _handleButton$handleConfirm$handleCancel = __webpack_require__(49);
 
-var _handleKeyDown = __webpack_require__(49);
+var _handleKeyDown = __webpack_require__(50);
 
 var _handleKeyDown2 = _interopRequireWildcard(_handleKeyDown);
 
@@ -35968,7 +36160,7 @@ var _defaultParams = __webpack_require__(12);
 
 var _defaultParams2 = _interopRequireWildcard(_defaultParams);
 
-var _setParameters = __webpack_require__(51);
+var _setParameters = __webpack_require__(52);
 
 var _setParameters2 = _interopRequireWildcard(_setParameters);
 
@@ -36230,15 +36422,55 @@ if (typeof window !== 'undefined') {
 module.exports = exports['default'];
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var Component = __webpack_require__(2)(
+var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(38),
   /* template */
-  __webpack_require__(57),
+  __webpack_require__(64),
+  /* styles */
+  null,
+  /* scopeId */
+  null,
+  /* moduleIdentifier (server only) */
+  null
+)
+Component.options.__file = "/home/vagrant/Code/cytonn/resources/assets/js/components/Account.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] Account.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-ca2df810", Component.options)
+  } else {
+    hotAPI.reload("data-v-ca2df810", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(39),
+  /* template */
+  __webpack_require__(59),
   /* styles */
   null,
   /* scopeId */
@@ -36270,15 +36502,15 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var Component = __webpack_require__(2)(
+var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(39),
+  __webpack_require__(40),
   /* template */
-  __webpack_require__(58),
+  __webpack_require__(60),
   /* styles */
   null,
   /* scopeId */
@@ -36310,15 +36542,15 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var Component = __webpack_require__(2)(
+var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(40),
+  __webpack_require__(41),
   /* template */
-  __webpack_require__(61),
+  __webpack_require__(63),
   /* styles */
   null,
   /* scopeId */
@@ -36350,15 +36582,15 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var Component = __webpack_require__(2)(
+var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(42),
+  __webpack_require__(43),
   /* template */
-  __webpack_require__(60),
+  __webpack_require__(62),
   /* styles */
   null,
   /* scopeId */
@@ -36390,7 +36622,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -36968,7 +37200,7 @@ if (false) {
 }
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37028,6 +37260,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       attrs: {
         "to": item.link,
         "exact": item.exact
+      },
+      nativeOn: {
+        "click": function($event) {
+          _vm.sideClick(item.heading)
+        }
       }
     }, [_c('v-list-tile', [_c('v-list-tile-action', [_c('v-icon', [_vm._v(_vm._s(item.icon))])], 1), _vm._v(" "), _c('v-list-tile-content', [_c('v-list-tile-title', [_vm._v(" " + _vm._s(item.title))])], 1)], 1)], 1)], 1)
   })], 2)], 1), _vm._v(" "), _c('v-toolbar', {
@@ -37046,7 +37283,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         _vm.drawer = !_vm.drawer
       }
     }
-  }), _vm._v(" "), _c('v-toolbar-title', [_vm._v("Task Manager")]), _vm._v(" "), _c('v-toolbar-items', [_c('v-menu', {
+  }), _vm._v(" "), _c('v-toolbar-title', [_vm._v(_vm._s(_vm.toolbarHeading))]), _vm._v(" "), _c('v-toolbar-items', [_c('v-menu', {
     attrs: {
       "left": "",
       "bottom": "",
@@ -37059,13 +37296,24 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "icon": ""
     },
     slot: "activator"
-  }, [_c('v-icon', [_vm._v("more_vert")])], 1), _vm._v(" "), _c('v-list', [_c('v-list-item', [_c('v-list-tile', [_c('v-list-tile-title', [_vm._v("My Account")])], 1), _vm._v(" "), _c('v-list-tile', [_c('v-list-tile-title', [_vm._v("Log Out")])], 1)], 1)], 1)], 1)], 1)], 1), _vm._v(" "), _c('main', [_c('v-container', {
+  }, [_c('v-icon', [_vm._v("more_vert")])], 1), _vm._v(" "), _c('v-list', [_c('v-list-item', [_c('v-list-tile', [_c('router-link', {
+    attrs: {
+      "to": "/users"
+    },
+    nativeOn: {
+      "click": function($event) {
+        _vm.sideClick('My Profile')
+      }
+    }
+  }, [_c('v-list-tile-title', [_vm._v("My Account")])], 1)], 1), _vm._v(" "), _c('v-list-tile', [_c('v-list-tile-title', [_vm._v("Log Out")])], 1)], 1)], 1)], 1)], 1)], 1), _vm._v(" "), _c('main', [_c('v-container', {
     attrs: {
       "fluid": ""
     }
   }, [_c('div', {
     staticClass: "title"
-  }, [_c('router-view')], 1)])], 1)], 1)
+  }, [_c('router-view')], 1)])], 1), _vm._v(" "), _c('v-footer', {
+    staticClass: "pa-3"
+  }, [_c('v-spacer'), _vm._v(" "), _c('div', [_vm._v("GiddyEffects © " + _vm._s(new Date().getFullYear()))])], 1)], 1)
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
@@ -37076,7 +37324,7 @@ if (false) {
 }
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37124,32 +37372,71 @@ if (false) {
 }
 
 /***/ }),
-/* 60 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('v-app-bar', [_c('v-btn-dropdown', {
+  return _c('div', [_c('v-app-bar', [_c('v-menu', {
     attrs: {
-      "options": _vm.dropdown_dept,
-      "max-height": "auto",
-      "overflow": "",
-      "label": "Select Dept"
+      "offset-y": ""
     }
-  }), _vm._v(" "), _c('v-btn-dropdown', {
+  }, [_c('v-btn', {
     attrs: {
-      "options": _vm.dropdown_task_options,
-      "max-height": "auto",
-      "overflow": "",
-      "label": "Select Task"
-    }
-  }), _vm._v(" "), _c('v-btn-dropdown', {
+      "primary": "",
+      "light": ""
+    },
+    slot: "activator"
+  }, [_vm._v("Select Dept")]), _vm._v(" "), _c('v-list', _vm._l((_vm.dropdown_dept), function(item) {
+    return _c('v-list-item', {
+      key: item
+    }, [_c('v-list-tile', {
+      nativeOn: {
+        "click": function($event) {
+          _vm.topMenu('dept', item.text)
+        }
+      }
+    }, [_c('v-list-tile-title', [_vm._v(_vm._s(item.text))])], 1)], 1)
+  }))], 1), _vm._v(" "), _c('v-menu', {
     attrs: {
-      "options": _vm.dropdown_access,
-      "max-height": "auto",
-      "overflow": "",
-      "label": "Access"
+      "offset-y": ""
     }
-  }), _vm._v(" "), _c('v-spacer'), _vm._v(" "), _c('router-link', {
+  }, [_c('v-btn', {
+    attrs: {
+      "primary": "",
+      "light": ""
+    },
+    slot: "activator"
+  }, [_vm._v("Select Task")]), _vm._v(" "), _c('v-list', _vm._l((_vm.dropdown_task_options), function(item) {
+    return _c('v-list-item', {
+      key: item
+    }, [_c('v-list-tile', {
+      nativeOn: {
+        "click": function($event) {
+          _vm.topMenu('task', item.text)
+        }
+      }
+    }, [_c('v-list-tile-title', [_vm._v(_vm._s(item.text))])], 1)], 1)
+  }))], 1), _vm._v(" "), _c('v-menu', {
+    attrs: {
+      "offset-y": ""
+    }
+  }, [_c('v-btn', {
+    attrs: {
+      "primary": "",
+      "light": ""
+    },
+    slot: "activator"
+  }, [_vm._v("Access")]), _vm._v(" "), _c('v-list', _vm._l((_vm.dropdown_access), function(item) {
+    return _c('v-list-item', {
+      key: item
+    }, [_c('v-list-tile', {
+      nativeOn: {
+        "click": function($event) {
+          _vm.topMenu('access', item.text)
+        }
+      }
+    }, [_c('v-list-tile-title', [_vm._v(_vm._s(item.text))])], 1)], 1)
+  }))], 1), _vm._v(" "), _c('v-spacer'), _vm._v(" "), _c('router-link', {
     attrs: {
       "to": "/tasks/create"
     }
@@ -37159,7 +37446,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "primary": "",
       "light": ""
     }
-  }, [_vm._v("Create Task")])], 1)], 1), _vm._v(" "), _c('router-view')], 1)
+  }, [_vm._v("Create Task")])], 1)], 1), _vm._v("\r\n  " + _vm._s(_vm.dept) + " " + _vm._s(_vm.taskType) + " " + _vm._s(_vm.accessLevel) + "\r\n  "), _c('router-view')], 1)
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
@@ -37170,7 +37457,7 @@ if (false) {
 }
 
 /***/ }),
-/* 61 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37199,7 +37486,163 @@ if (false) {
 }
 
 /***/ }),
-/* 62 */
+/* 64 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('v-card', [_c('v-card-row', {
+    staticClass: "indigo"
+  }, [_c('v-card-title', [_c('span', {
+    staticClass: "white--text"
+  }, [_vm._v("My Account")]), _vm._v(" "), _c('v-spacer'), _vm._v(" "), _c('div', [_c('v-menu', {
+    attrs: {
+      "id": "marriot",
+      "bottom": "",
+      "left": "",
+      "origin": "top right"
+    }
+  }, [_c('v-btn', {
+    staticClass: "white--text",
+    attrs: {
+      "icon": "icon"
+    },
+    slot: "activator"
+  }, [_c('v-icon', [_vm._v("more_vert")])], 1), _vm._v(" "), _c('v-list', [_c('v-list-item', [_c('v-list-tile', [_c('v-list-tile-title', [_vm._v("Edit")])], 1)], 1), _vm._v(" "), _c('v-list-item', [_c('v-list-tile', [_c('v-list-tile-title', [_vm._v("Send Feedback")])], 1)], 1)], 1)], 1)], 1)], 1)], 1), _vm._v(" "), _c('v-card-text', [_c('v-card-row', {
+    attrs: {
+      "height": "30px"
+    }
+  }, [_c('v-icon', {
+    staticClass: "mr-5",
+    attrs: {
+      "dark": ""
+    }
+  }, [_vm._v("face")]), _vm._v(" "), _c('v-flex', {
+    attrs: {
+      "xs4": ""
+    }
+  }, [_c('v-subheader', [_vm._v("First Name:")])], 1), _vm._v(" "), _c('v-flex', {
+    attrs: {
+      "xs8": ""
+    }
+  }, [_c('v-text-field', {
+    attrs: {
+      "name": "input-3",
+      "label": "First Name",
+      "value": _vm.user.firstname,
+      "disabled": !_vm.edit,
+      "single-line": ""
+    },
+    model: {
+      value: (_vm.user.firstname),
+      callback: function($$v) {
+        _vm.user.firstname = $$v
+      },
+      expression: "user.firstname"
+    }
+  })], 1)], 1)], 1), _vm._v(" "), _c('v-divider'), _vm._v(" "), _c('v-card-text', [_c('v-card-row', {
+    attrs: {
+      "height": "30px"
+    }
+  }, [_c('v-icon', {
+    staticClass: "mr-5",
+    attrs: {
+      "dark": ""
+    }
+  }, [_vm._v("face")]), _vm._v(" "), _c('v-flex', {
+    attrs: {
+      "xs4": ""
+    }
+  }, [_c('v-subheader', [_vm._v("Last Name:")])], 1), _vm._v(" "), _c('v-flex', {
+    attrs: {
+      "xs8": ""
+    }
+  }, [_c('v-text-field', {
+    attrs: {
+      "name": "input-3",
+      "label": "Last Name",
+      "value": _vm.user.lastname,
+      "disabled": !_vm.edit,
+      "single-line": ""
+    },
+    model: {
+      value: (_vm.user.lastname),
+      callback: function($$v) {
+        _vm.user.lastname = $$v
+      },
+      expression: "user.lastname"
+    }
+  })], 1)], 1)], 1), _vm._v(" "), _c('v-divider'), _vm._v(" "), _c('v-card-text', [_c('v-card-row', {
+    attrs: {
+      "height": "30px"
+    }
+  }, [_c('v-icon', {
+    staticClass: "mr-5",
+    attrs: {
+      "dark": ""
+    }
+  }, [_vm._v("face")]), _vm._v(" "), _c('v-flex', {
+    attrs: {
+      "xs4": ""
+    }
+  }, [_c('v-subheader', [_vm._v("Email:")])], 1), _vm._v(" "), _c('v-flex', {
+    attrs: {
+      "xs8": ""
+    }
+  }, [_c('strong', [_vm._v(_vm._s(_vm.user.email))])])], 1)], 1), _vm._v(" "), _c('v-divider'), _vm._v(" "), _c('v-card-text', [_c('v-card-row', {
+    attrs: {
+      "height": "30px"
+    }
+  }, [_c('v-icon', {
+    staticClass: "mr-5",
+    attrs: {
+      "dark": ""
+    }
+  }, [_vm._v("face")]), _vm._v(" "), _c('v-flex', {
+    attrs: {
+      "xs4": ""
+    }
+  }, [_c('v-subheader', [_vm._v("Vacation:")])], 1), _vm._v(" "), _c('v-flex', {
+    attrs: {
+      "xs8": ""
+    }
+  }, [_c('v-checkbox', {
+    attrs: {
+      "dark": "",
+      "disabled": !_vm.edit
+    },
+    model: {
+      value: (_vm.user.vacation),
+      callback: function($$v) {
+        _vm.user.vacation = $$v
+      },
+      expression: "user.vacation"
+    }
+  })], 1)], 1)], 1), _vm._v(" "), _c('v-divider'), _vm._v(" "), _c('v-card-row', {
+    attrs: {
+      "actions": ""
+    }
+  }, [_c('v-btn', {
+    staticClass: "green--text darken-1",
+    attrs: {
+      "flat": ""
+    },
+    nativeOn: {
+      "click": function($event) {
+        _vm.toggleEdit($event)
+      }
+    }
+  }, [_vm._v("Edit")])], 1)], 1)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-ca2df810", module.exports)
+  }
+}
+
+/***/ }),
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -46219,7 +46662,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 //# sourceMappingURL=vuetify.js.map
 
 /***/ }),
-/* 63 */
+/* 66 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -46247,7 +46690,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 64 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(16);
@@ -46255,4 +46698,4 @@ module.exports = __webpack_require__(17);
 
 
 /***/ })
-],[64]);
+],[67]);
