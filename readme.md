@@ -1,6 +1,6 @@
 ## About Task Manager
 
-The Task Manager system will enable efficient follow up to created and assigned tasks
+The Task Manager system (work in progress) will enable efficient follow up to created and assigned tasks
 
 ## Server Setup
 
@@ -12,7 +12,7 @@ The Task Manager system will enable efficient follow up to created and assigned 
 
 1. Clone the repository to `<yourdocumentroot>`
 
-  `git clone https://bitbucket.org/nikimangroup/ci_tasks <yourdocumentroot>`
+  `git clone https://github.com/giddyeffects/task_manager.git <yourdocumentroot>`
 
 2. Change directory to <yourdocumentroot> and Install PHP dependencies 
     `composer install`
