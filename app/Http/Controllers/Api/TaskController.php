@@ -43,15 +43,23 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            'assigned_id.required' => 'Please assign the task',
+            'category_id.required' => 'The task needs a category',
+            'due_date.required' => 'The date the task is due is required',
+            'due_date.after_or_equal:today' => 'The task due date cannot be in the past',
+            'reminder.required_if' => 'Please select the reminder date',
+            'end_repeat_date.required_unless' => 'Please select end repeat date'
+        ];
         $this->validate($request, [
             'title' => 'bail|required|string|max:255',
             'description' => 'required|string',
             'assigned_id' => 'required|integer',
             'category_id' => 'required|integer',
             'due_date' => 'required|date|after_or_equal:today',
-            'end_repeat_date' => 'nullable|date|after_or_equal:tomorrow',
-            'reminder' => 'nullable|date|after_or_equal:today',
-        ]);
+            'end_repeat_date' => 'nullable|date|after_or_equal:tomorrow|required_unless:repeat,never',
+            'reminder' => 'nullable|date|after_or_equal:today|required_if:set_reminder,true',
+        ], $messages);
         $task = new Task();
         $task->number = mt_rand(100000,999999); //random six digit number
         $task->assigned_id = $request->input('assigned_id');
@@ -59,11 +67,12 @@ class TaskController extends Controller
         $task->category_id = $request->input('category_id');
         $task->title = $request->input('title');
         $task->description = $request->input('description');
-        $task->isprivate = $request->input('isprivate');
+        $task->isprivate = ($request->input('isprivate'))?1:0;
         $task->priority = $request->input('priority');
         $task->due_date = $request->input('due_date');
         $task->repeat = $request->input('repeat');
         $task->end_repeat_date = $request->input('end_repeat_date');
+        $task->set_reminder = ($request->input('set_reminder'))?1:0;
         $task->reminder = $request->input('reminder');
         $task->save();
         return response()->json(['message' => 'Task Added']);
@@ -102,7 +111,7 @@ class TaskController extends Controller
     {
         $this->validate($request, [
             'title' => 'bail|required|string|max:255',
-            'description' => 'requiredstring|',
+            'description' => 'required|string',
             'assigned_id' => 'required|integer',
             'category_id' => 'required|integer',
             'due_date' => 'required|date|after_or_equal:today',

@@ -22,18 +22,19 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::resource('tasks','TaskController');
 
-Route::get('/categories', function () {
+Route::get('/api/categories', function () {
     return App\Category::all();
 });
 
-Route::get('/gettheusers', function () {
+Route::get('/api/gettheusers', function () {
     return App\User::select('id','firstname','lastname')->where([ ['id','<>',Auth::id()], ['vacation','=',0] ])->get();
 });
 
-Route::get('/statuses', function () {
+Route::get('/api/statuses', function () {
     return App\Status::all();
 });
 
-Route::get('/depts', function () {
+Route::get('/api/depts', function () {
     return App\Department::all();
 });
+//Route::get('/api/depts', function() { return App\Department::with('users')->with('manager')->get(); } );

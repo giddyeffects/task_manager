@@ -74,7 +74,7 @@
         },
         methods: {
           fetchDeptList: function() {
-              axios.get('/depts').then((response) => {
+              axios.get('/api/depts').then((response) => {
                  for (var i = 0; i < response.data.length; i++){
                     this.dropdown_dept.push({ text: response.data[i].name, id: response.data[i].id }); 
                 }

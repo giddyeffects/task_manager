@@ -33,7 +33,7 @@ import router from './routes';
 // 	routes //or just routes if using ES6
 // });
 
-//custom error class
+//custom error class...not in use for now
 class Errors {
 	constructor(){
 		this.errors = {};
@@ -46,6 +46,35 @@ class Errors {
 	record(errors){
 		this.errors = errors;
 	}
+	clear(field){
+		delete this.errors[field];
+	}
+	has(field){
+		return this.errors.hasOwnProperty(field);
+	}
+	any(){
+		return Object.keys(this.errors).length > 0 ;
+	}
+}
+
+//form class...not in use for now
+class Form {
+	constructor(data){
+		this.originalData = data;
+		for (let field in data){
+			this[field] = data[field];
+		}
+
+		this.errors = new Errors();
+	}
+	reset(){
+		for(let field in originalData){
+			this[field] = '';
+		}
+	}
+	submit(requestType, url){
+
+	}
 }
 
 window.swal = require('sweetalert');
@@ -55,8 +84,7 @@ window.swal = require('sweetalert');
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
-//Vue.component('app-nav', require('./components/Header.vue'));
-//Vue.component('app-sidebar', require('./components/Sidebar.vue'));
+
 Vue.component('app-topbar', require('./components/Topbar.vue'));
 Vue.component('task', require('./components/Tasks.vue'));
 Vue.component('dash', require('./components/Dash.vue'));

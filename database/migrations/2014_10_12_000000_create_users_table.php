@@ -30,6 +30,7 @@ class CreateUsersTable extends Migration
             $table->string('phone', 15)->nullable();        //user's phone number
             $table->string('phone_ext', 4)->nullable();    //user's extension
             $table->string('signature', 255)->nullable();    //user's signature
+            $table->string('avatar', 255)->nullable();    //user's avatar
             //foreign keys
             $table->foreign('department_id')->references('id')->on('departments');
             $table->foreign('role_id')->references('id')->on('roles');

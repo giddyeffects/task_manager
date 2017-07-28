@@ -1,11 +1,34 @@
 <template>
 <div>
     <app-topbar></app-topbar>
-     <v-card class="grey lighten-4 elevation-0">
+     <v-card>
+        <v-card-title>
+          My Tasks
+          <v-spacer></v-spacer>
+          <v-text-field append-icon="search" label="Search Tasks" single-line hide-details v-model="search"></v-text-field>
+        </v-card-title>
+        <v-data-table :headers="headers" :items="list" :search="search" :no-data-text="noData" :loading="showLoading">
+            <template slot="items" scope="props">
+<td>
+    <v-edit-dialog @open="props.item._title = props.item.title" @cancel="props.item.title = props.item._title || props.item.title" lazy> {{ props.item.title }}
+    <v-text-field slot="input" label="Edit" :value="props.item.title" @change="val => props.item.title = val" single-line counter="counter"></v-text-field></v-edit-dialog>
+</td>
+                <td class="text-xs-right">{{ props.item.category_id }}</td>
+                <td class="text-xs-right">{{ props.item.assigned_id }}</td>
+                <td class="text-xs-right">{{ props.item.priority }}</td>
+                <td class="text-xs-right">{{ props.item.created_at }}</td>
+                <td class="text-xs-right">{{ props.item.due_date }}</td>
+                <td class="text-xs-right">{{ props.item.status_id }}</td>
+            </template>
+            <template slot="pageText" scope="{ pageStart, pageStop }">
+                From {{ pageStart }} to {{ pageStop }}
+            </template>
+        </v-data-table>
+
+
+
         <v-card-text>
-                
           <v-list two-line subheader>
-            <v-subheader inset>My Tasks</v-subheader>
             <v-list-item v-for="task in list" v-bind:key="task.title">
               <v-list-tile avatar>
                 <v-list-tile-content>
@@ -33,6 +56,24 @@
                 categoryOptions: [],
                 userOptions: [],
                 errors: {},
+                showLoading: true,
+                noData: 'You have no tasks',
+                search: '',
+                pagination: {},
+                headers: [
+                    {
+                        text: 'Title',
+                        align: 'left',
+                        sortable: false,
+                        value: 'title'
+                    },
+                    { text: 'Category', value: 'category_id' },
+                    { text: 'Assigned To', value: 'assigned_id' },
+                    { text: 'Priority', value: 'priority' },
+                    { text: 'Created On', value: 'created_at' },
+                    { text: 'Due Date', value: 'due_date' },
+                    { text: 'Status', value: 'status_id' }
+                ],
                 task: {
                     id: '',
                     title: '',
@@ -68,6 +109,7 @@
                 axios.get('api/tasks').then((response) => {
                     //console.log(response.data);
                     this.list = response.data;
+                    this.showLoading = false;
                     
                 })
                 .catch(function (err) {
@@ -76,7 +118,7 @@
                 });
             },
             getCategories: function(){
-                axios.get('/categories').then((response) => {
+                axios.get('/api/categories').then((response) => {
                     //console.log("categories "+response.data);
                     //this.categoryOptions = response.data;
                     for (var i = 0; i < response.data.length; i++){
@@ -90,7 +132,7 @@
                 });
             },
             getUsers: function(){
-                axios.get('/gettheusers').then((response) => {
+                axios.get('/api/gettheusers').then((response) => {
                     //console.log("users "+response.data);
                     for (var i = 0; i < response.data.length; i++){
                         this.userOptions.push({text: response.data[i].firstname+' '+response.data[i].lastname, id: response.data[i].id }); 
@@ -112,8 +154,8 @@
                 let params = Object.assign({}, self.task);
                 //console.log("task to create "+self.task);
                 axios.post('api/task/store', params)
-                .then(function (res) {
-                    console.log(res);
+                .then(function (response) {
+                    console.log(response);
                 })
                 .catch( function (err) {
                     self.errors = err.response.data;

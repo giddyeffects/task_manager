@@ -22,7 +22,32 @@
         <v-divider></v-divider>
         <v-list-item v-for="item in sidebarmenus" :key="item.title">
           <router-link :to="item.link" class="list__tile" :exact="item.exact" @click.native="sideClick(item.heading)">
-            <v-list-tile>
+            <v-list-group v-if="item.children" v-model="item.expand" no-action>
+              <v-list-tile slot="item">
+                <v-list-tile-action>
+                  <v-icon>{{ item.icon }}</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>
+                    {{ item.title }}
+                  </v-list-tile-title>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-icon>{{ item.expand ? item.up_icon : item['down_icon'] }}</v-icon>
+                </v-list-tile-action>
+              </v-list-tile>
+              <v-list-tile v-for="(child, i) in item.children" :key="i">
+                <v-list-tile-action v-if="child.icon">
+                  <v-icon>{{ child.icon }}</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>
+                    {{ child.title }}
+                  </v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list-group>
+            <v-list-tile v-else>
               <v-list-tile-action>
                 <v-icon>{{ item.icon }}</v-icon>
               </v-list-tile-action>
@@ -63,7 +88,7 @@
     </main>
     <v-footer class="pa-3">
       <v-spacer></v-spacer>
-      <div>GiddyEffects © {{ new Date().getFullYear() }}</div>
+      <div>GiddyEffects © 2017 - {{ new Date().getFullYear() }}</div>
     </v-footer>
   </v-app>
 </template>
@@ -75,9 +100,22 @@
               drawer: true,
               toolbarHeading: 'Dashboard',
               sidebarmenus: [
-                { title: 'Home', icon: 'dashboard', link: '/', exact: true, heading: 'Dashboard' },
-                { title: 'Tasks', icon: 'list', link: '/tasks', exact: false, heading: 'Task Manager' },
-                { title: 'My Account', icon: 'account_circle', link: '/users', exact: false, heading: 'My Profile' }
+                { title: 'Home', icon: 'dashboard', link: '/', exact: true, heading: 'Dashboard', expand:false },
+                { 
+                  title: 'Tasks', 
+                  icon: 'list', 
+                  up_icon: 'keyboard_arrow_up',
+                  'down_icon': 'keyboard_arrow_down',
+                  link: '/tasks', 
+                  exact: false, 
+                  heading: 'Task Manager',
+                  expand: false,
+                  children: [
+                    { title: 'Create Task', icon: 'add', link: '/tasks/create'},
+                    { title: 'Task Categories', icon: 'add', link: '/category'}
+                  ]
+                },
+                { title: 'My Account', icon: 'account_circle', link: '/users', exact: false, heading: 'My Profile', expand: false }
               ],
               mini: false,
               right: null,

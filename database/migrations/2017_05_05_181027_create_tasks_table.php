@@ -35,7 +35,8 @@ class CreateTasksTable extends Migration
             $table->dateTime('last_update')->nullable();
             $table->enum('repeat', ['never', 'daily','weekly','fortnightly','monthly','yearly'])->default('never');
             $table->dateTime('end_repeat_date')->nullable();
-            $table->dateTime('reminder')->nullable();
+            $table->boolean('set_reminder')->default(false);     //user wants a reminder set and sent
+            $table->dateTime('reminder')->nullable();           //date time of the reminder
             $table->integer('percent')->default(0);              //the percentage done
             $table->timestamps();
             //foreign keys
