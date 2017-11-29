@@ -71,4 +71,19 @@ class Task extends Model
     {
         return $this->hasMany('App\Thread');
     }
+	
+	/**
+	 * Get the tasks that are private
+	 */
+	public function scopeIsprivate($query)
+	{
+		return $query->where('isprivate',1);
+	}
+	/**
+	 * Get the tasks that are private
+	 */
+	public function scopeIsoverdue($query)
+	{
+		return $query->where('isoverdue',1);
+	}
 }

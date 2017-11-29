@@ -16,8 +16,9 @@ class TasksTest extends TestCase
      */
     public function testUserCanViewTheirTasks()
     {
-        $task = factory('App\Task')->create();
-        $response = $this->get('/tasks');
+        $user = factory('App\User')->create();
+        $task = factory('App\Task')->create(['creator_id'=>$user->id]);
+        $response = $this->actingAs($user)->get('/tasks');
         $response->assertSee($task->title);    
     }
 
@@ -37,5 +38,27 @@ class TasksTest extends TestCase
     	$task = factory('App\Task')->create(['title'=>'A test title']);
         $response = $this->json('GET', 'api/tasks');
         $response->assertStatus(200);
+    }
+
+    /**
+     * Test GET Users API
+     *
+     * @return void
+     */
+    public function testUsersAPIGet()
+    {
+        $response = $this->json('GET', 'api/gettheusers');
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Test Categories API
+     *
+     * @return void
+     */
+    public function testCategoriesAPIGet()
+    {
+        $response = $this->json('GET', 'api/categories');
+        $response->assertStatus(200)->assertJson([['name'=>'Default Category']]); //there must be a default category
     }
 }

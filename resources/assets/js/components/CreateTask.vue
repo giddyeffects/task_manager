@@ -2,7 +2,7 @@
 <div>
     <app-topbar></app-topbar>
     <v-alert error dismissible v-model="alert">
-    	<div v-for="error in errors">{{ error }}</div>
+    	<div v-for="error in errors" :key="error">{{ error }}</div>
     </v-alert>
     <v-layout row wrap>
      <v-card offset-xs1 class="card__text">
@@ -170,7 +170,7 @@
             </div>
           </v-card-text>
         </form>
-        <v-list two-line subheader>
+        <!-- <v-list two-line subheader>
           <v-subheader inset>My Tasks</v-subheader>
           <v-list-item v-for="task in list" v-bind:key="task.title">
             <v-list-tile avatar>
@@ -184,7 +184,7 @@
               </v-list-tile-action>
             </v-list-tile>
           </v-list-item>
-        </v-list>
+        </v-list> -->
 
     <v-snackbar
       :timeout="snackbar.timeout"

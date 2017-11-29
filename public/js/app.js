@@ -37010,7 +37010,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       expression: "alert"
     }
   }, _vm._l((_vm.errors), function(error) {
-    return _c('div', [_vm._v(_vm._s(error))])
+    return _c('div', {
+      key: error
+    }, [_vm._v(_vm._s(error))])
   })), _vm._v(" "), _c('v-layout', {
     attrs: {
       "row": "",
@@ -37614,38 +37616,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "type": "submit",
       "outline": ""
     }
-  }, [_vm._v("Edit Task")])], 1)])])], 1), _vm._v(" "), _c('v-list', {
-    attrs: {
-      "two-line": "",
-      "subheader": ""
-    }
-  }, [_c('v-subheader', {
-    attrs: {
-      "inset": ""
-    }
-  }, [_vm._v("My Tasks")]), _vm._v(" "), _vm._l((_vm.list), function(task) {
-    return _c('v-list-item', {
-      key: task.title
-    }, [_c('v-list-tile', {
-      attrs: {
-        "avatar": ""
-      }
-    }, [_c('v-list-tile-content', [_c('v-list-tile-title', [_vm._v(_vm._s(task.title))]), _vm._v(" "), _c('v-list-tile-sub-title', [_vm._v(_vm._s(task.description))])], 1), _vm._v(" "), _c('v-list-tile-action', [_c('button', {
-      staticClass: "btn primary btn--small",
-      on: {
-        "click": function($event) {
-          _vm.showTask(task.id)
-        }
-      }
-    }, [_vm._v("Edit")]), _vm._v(" "), _c('button', {
-      staticClass: "btn danger btn-small",
-      on: {
-        "click": function($event) {
-          _vm.deleteTask(task.id)
-        }
-      }
-    }, [_vm._v("Delete")])])], 1)], 1)
-  })], 2), _vm._v(" "), _c('v-snackbar', {
+  }, [_vm._v("Edit Task")])], 1)])])], 1), _vm._v(" "), _c('v-snackbar', {
     attrs: {
       "timeout": _vm.snackbar.timeout,
       "top": _vm.snackbar.top,
@@ -37931,34 +37902,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         return [_vm._v("\r\n                From " + _vm._s(pageStart) + " to " + _vm._s(pageStop) + "\r\n            ")]
       }
     }])
-  }), _vm._v(" "), _c('v-card-text', [_c('v-list', {
-    attrs: {
-      "two-line": "",
-      "subheader": ""
-    }
-  }, _vm._l((_vm.list), function(task) {
-    return _c('v-list-item', {
-      key: task.title
-    }, [_c('v-list-tile', {
-      attrs: {
-        "avatar": ""
-      }
-    }, [_c('v-list-tile-content', [_c('v-list-tile-title', [_vm._v(_vm._s(task.title))]), _vm._v(" "), _c('v-list-tile-sub-title', [_vm._v(_vm._s(task.description))])], 1), _vm._v(" "), _c('v-list-tile-action', [_c('button', {
-      staticClass: "btn primary btn--small",
-      on: {
-        "click": function($event) {
-          _vm.showTask(task.id)
-        }
-      }
-    }, [_vm._v("Edit")]), _vm._v(" "), _c('button', {
-      staticClass: "btn danger btn-small",
-      on: {
-        "click": function($event) {
-          _vm.deleteTask(task.id)
-        }
-      }
-    }, [_vm._v("Delete")])])], 1)], 1)
-  }))], 1)], 1)], 1)
+  })], 1)], 1)
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {

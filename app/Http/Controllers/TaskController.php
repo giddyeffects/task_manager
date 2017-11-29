@@ -34,6 +34,19 @@ class TaskController extends Controller
     }
 
     /**
+     * Display a listing of all the Tasks
+     * Used for testing
+     * @return \Illuminate\Http\Response
+     */
+    public function all()
+    {
+
+        $tasks = Task::all();//for testing
+        // load the view and pass the tasks
+       return view('tasks.index', ['tasks' => $tasks]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response

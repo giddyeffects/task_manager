@@ -27,7 +27,7 @@
 
 
 
-        <v-card-text>
+        <!-- <v-card-text>
           <v-list two-line subheader>
             <v-list-item v-for="task in list" v-bind:key="task.title">
               <v-list-tile avatar>
@@ -42,7 +42,7 @@
               </v-list-tile>
             </v-list-item>
           </v-list>
-        </v-card-text>
+        </v-card-text> -->
     </v-card>
 </div>
 </template>
